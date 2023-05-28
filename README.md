@@ -1,2 +1,1 @@
-# validation
-Axm validation of rules
+# validator
