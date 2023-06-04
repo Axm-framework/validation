@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Axm\Validation\Rules;
 
-use function is_string;
+use function is_object;
 
 /*
-* Class Text
+ *Class Object
 
- * (c) Juan Cristobal <juancristobalgd1@gmail.com>
+ * This file is part of Respect/Validation.
+ *
+ * (c) Alexandre Gomes Gaigalas <alexandre@gaigalas.net>
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
- * @author  Juan Cristobal <juancristobalgd1@gmail.com>
- * @package Axm\Validation\Rules
  */
 
-class Text
+class IsObject
 {
     public function validate($input): bool
     {
-        return is_string($input);
+        return is_object($input);
     }
 }

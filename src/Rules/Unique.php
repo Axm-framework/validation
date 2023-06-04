@@ -20,8 +20,13 @@ use Axm\Exception\AxmException;
 class Unique
 {
 
-    public function validate(...$input): bool
+    public function validate($value, $parameters): bool
     {
+        dd(
+            $value,
+            $parameters
+        );
+
         if (count($input) < 3) {
             throw new AxmException('Missing required arguments');
         }

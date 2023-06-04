@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Axm\Validation\Rules;
 
-use function is_string;
-
 /*
-* Class Text
+* Class File
 
  * (c) Juan Cristobal <juancristobalgd1@gmail.com>
  *
@@ -17,10 +15,15 @@ use function is_string;
  * @package Axm\Validation\Rules
  */
 
-class Text
+class IsFile
 {
-    public function validate($input): bool
+
+    public function validate(string $rule, ?string $attribute): bool
     {
-        return is_string($input);
+        if ($rule !== 'required' || empty($attribute) || !isset($_FILES[$attribute])) {
+            return false;
+        }
+
+        return !empty($_FILES[$attribute]['tmp_name']);
     }
 }

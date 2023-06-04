@@ -80,15 +80,12 @@ class Validator
     private  $equals  = ':';
     private  $grouper_open  = '[';
     private  $grouper_close = ']';
-    private  $compare = [
-        '===', '!==', '!=', '==',
-        '>=', '<=', '<', '>'
-    ];
+
+    protected $currentOperator;
 
     private  $not = '!';
 
     public array $rules = [];
-    private string $rule = '';
 
     public $data;
     /**variables donde se guardan todos los errores */
@@ -98,7 +95,6 @@ class Validator
     private array $occurrencesErrors = [];
 
     public $skipValidation = false;
-    private $fields;
     public $validationRules = [];
 
     protected $validationMessage = [];
@@ -108,58 +104,60 @@ class Validator
 
     protected $errorMessage =
     [
-        'required'   => 'The field {field} is required',
+        'required'   => 'The field {{field}} is required',
         'email'      => 'The field must be valid email address',
-        'min'        => 'Min length of the field {field} must be {min}',
-        'max'        => 'Max length of the field {field} must be {max}',
+        'min'        => 'Min length of the field {{field}} must be {{min}}',
+        'max'        => 'Max length of the field {{field}} must be {{max}}',
         'match'      => 'The field must be the same as {match}',
-        'size'       => 'Size of the {field} must be {size}',
-        'equals'     => 'Este campo debe ser igual al campo {field}',
-        'compare'    => 'The field {field} not is {operator} to field {value}',
-        'unique'     => 'Record with The {field} already exists',
-        'alpha'      => 'The field {field} is text',
-        'alnum'      => 'The field {field} is alphanumeric',
-        'numeric'    => 'The field {field} is numeric',
-        'phone'      => 'Este formato de telefono es incorrecto',
+        'size'       => 'Size of the {{field}} must be {size}',
+        'equals'     => 'This field must be equal to the {{field}} field.',
+        'same'       => 'This field must be equal to the {{field}} field.',
+        'compare'    => 'The field {{field}} not is {{operator}} to field {{value}}',
+        'unique'     => 'Record with The {{field}} already exists',
+        'alpha'      => 'The field {{field}} is text',
+        'alnum'      => 'The field {{field}} is alphanumeric',
+        'numeric'    => 'The field {{field}} is numeric',
+        'phone'      => 'This phone format is wrong',
         'file'       => 'File invalid',
-        'number'     => 'The field {field} is number',
-        'positive'   => 'The field {field} is positive number',
-        'negative'   => 'The field {field} is positive negative',
-        'decimal'    => 'The field {field} is decimal',
-        'integer'    => 'The field {field} is integer',
-        'nif'        => 'The field {field} is nif',
-        'array'      => 'The field {field} is array',
-        'text'       => 'The field {field} is string',
-        'postalcode' => 'The field {field} is invalid',
-        'dir'        => 'The field {field} is dir',
-        'lower'      => 'The field {field} is lower',
-        'uppercase'  => 'The field {field} is uppercase',
-        'consonant'  => 'The field {field} is consonant',
-        'date'       => 'The field {field} is date',   //revisar
-        'time'       => 'The field {field} is time',   //revisar
-        'slug'       => 'The field {field} is slug',
-        'finite'     => 'The field {field} is finite',
-        'infinite'   => 'The field {field} is infinite',
-        'isbn'       => 'The field {field} is isbn',
-        'iban'       => 'The field {field} is incorrect',
-        'nif'        => 'The field {field} is incorrect',
-        'fibonacci'  => 'The field {field} is number fibonacci',
-        'null'       => 'The field {field} is null',
-        'url'        => 'The field {field} is url',
+        'number'     => 'The field {{field}} is number',
+        'positive'   => 'The field {{field}} is positive number',
+        'negative'   => 'The field {{field}} is positive negative',
+        'decimal'    => 'The field {{field}} is decimal',
+        'integer'    => 'The field {{field}} is integer',
+        'nif'        => 'The field {{field}} is nif',
+        'array'      => 'The field {{field}} is array',
+        'text'       => 'The field {{field}} is string',
+        'postalcode' => 'The field {{field}} is invalid',
+        'dir'        => 'The field {{field}} is dir',
+        'lower'      => 'The field {{field}} is lower',
+        'uppercase'  => 'The field {{field}} is uppercase',
+        'consonant'  => 'The field {{field}} is consonant',
+        'date'       => 'The field {{field}} is date',   //revisar
+        'time'       => 'The field {{field}} is time',   //revisar
+        'slug'       => 'The field {{field}} is slug',
+        'finite'     => 'The field {{field}} is finite',
+        'infinite'   => 'The field {{field}} is infinite',
+        'isbn'       => 'The field {{field}} is isbn',
+        'iban'       => 'The field {{field}} is incorrect',
+        'nif'        => 'The field {{field}} is incorrect',
+        'fibonacci'  => 'The field {{field}} is number fibonacci',
+        'null'       => 'The field {{field}} is null',
+        'url'        => 'The field {{field}} is url',
         'card'       => 'The number card invalid',
-        'true'       => 'The field {field} is true',
-        'false'      => 'The field {field} is false',
-        'json'       => 'The field {field} is json',
-        'leapdate'   => 'The field {field} is leapdate',
-        'leapyear'   => 'The field {field} is leadyear',
-        'mac'        => 'The field {field} is mac address',
-        'oject'      => 'The field {field} is object',
-        'odd'        => 'The field {field} is odd', //si es par
-        'pis'        => 'The field {field} is pis',
-        'link'       => 'The field {field} is link',
+        'true'       => 'The field {{field}} is true',
+        'false'      => 'The field {{field}} is false',
+        'json'       => 'The field {{field}} is json',
+        'leapdate'   => 'The field {{field}} is leapdate',
+        'leapyear'   => 'The field {{field}} is leadyear',
+        'mac'        => 'The field {{field}} is mac address',
+        'oject'      => 'The field {{field}} is object',
+        'odd'        => 'The field {{field}} is odd', //si es par
+        'pis'        => 'The field {{field}} is pis',
+        'link'       => 'The field {{field}} is link',
+
 
         //not
-        '!required'   => 'The field {field} no is required',
+        '!required'   => 'The field {{field}} no is required',
         '!email'      => 'The field no must be valid email address',
         '!alpha'      => 'The field no is text',
         '!alnum'      => 'The field no is alphanumeric',
@@ -252,71 +250,121 @@ class Validator
     // }
 
 
+    // *********************************************************************************************************
+
 
     public function validaten(array $rulePack): bool
     {
         $this->data = $rulePack;
         $this->reset(false);
 
-        foreach ($this->validationRules as $key => $rules) {
+        foreach ($this->validationRules as $attr => $rules) {
 
-            if (!isset($this->data[$key])) {
-                continue; // Saltar si el valor no existe en el array de datos.
+            if (!isset($this->data[$attr])) {
+                continue;         // Saltar si el valor no existe en el array de datos.
             }
 
-            $rules = array_filter(explode('|', $rules));
-            // $cnt   = !is_countable($rules) ?: count($rules);
+            $rules = array_filter(explode($this->separator, $rules));
             $cnt   = count($rules);
-
             foreach ($rules as $i => $ruleItem) {
 
                 $parameters = [];
                 if (strpos($ruleItem, ':') !== false) {
                     [$rule, $parameter] = explode(':', $ruleItem, 2);
                     $parameters = explode(',', $parameter);
+
+
+                    #si regla es same la compila
+                    if ($rule == 'same') {
+                        if (array_key_exists($parameter, $this->data)) {
+
+                            $parameters = $this->data[$parameter] ?? null;
+                        }
+                    }
+
+
+                    #si regla es unique la compila
+                    if ($rule == 'unique') {
+                        if (array_key_exists($parameter, $this->data)) {
+
+                            $value      = $this->data[$attr];
+                            $parameters = $this->data[$parameter] ?? null;
+                        }
+                    }
+
+
+                    #si existen reglas de comparacion las compila
+                } elseif (!empty($return = $this->compileComparisonRules($ruleItem))) {
+
+                    $rule = 'compare';
+                    $parameters = [
+                        'value'    => $return,
+                        'operator' => $this->currentOperator
+                    ];
+
+
+                    #Si la regla es un file
+                } elseif ($this->isFileAttribute($ruleItem, $attr)) {
+                    echo 'es un afile';                    // $this->isRequiredFile($rule, $attr);
+                    dd(
+                        $ruleItem,
+                        $attr,
+                    );
+
+
+
+
+                    #tt
                 } else {
                     $rule = $ruleItem;
                 }
 
-                if ($i + 1 === $cnt) {
+
+                if ($i + 1 > $cnt) {
                     continue;
-                } else {
+                } 
+                // else {
 
-                    $value = $this->data[$key] ?? null;    //Obtener el valor del campo de entrada
-                }
+                    $value = $this->data[$attr] ?? null;    //Obtener el valor del campo de entrada
+                // }
 
-                $return = $this->instantiateClass($rule)->validate($value, $parameters);
-                if (false === $return) {
-                    $this->addErrorByRule($key, $rule, [$rule => $parameters[0] ?? $value]);
-                }
+
+                #valida las rules y agrega error si existe
+                $this->executeRule($rule, $attr, $value, $parameters);
             }
         }
 
-        // Verificar si hay errores y devolver el resultado
+        # Verificar si hay errores y devolver el resultado
         return empty($this->errors);
     }
 
 
     /**
-     * Class Rule Single
-     * si encuentra la rule class en todas las reglas de validación
-     * entonce  intanciará la clase y llamará al metodo validate 
-     * @param string $rule la regla de validación a comprobar.
-     * @param mixed $attribute el atributo a validar.
-     * @return bool devuelve true si la validación es exitosa, o false si no lo es.
+     * Compara si en las reglas de validacion existen algun operador de comparacion
+     * estos pueden ser: ('<=','>=','===','==','!=','!==','<','>')
      */
-    public function isSingleRule(string $rule, $attribute): bool
+    private function compileComparisonRules(string $rule)
     {
-        $this->instantiateClass($rule); //instanciar la rule class
-
-        if ($this->class->validate($attribute)) {
-            return true;
-        }
-
-        $this->addErrorByRule($attribute, $rule, ['field' => $attribute]);
-        return false;
+        $pattern = '/(?:<=|>=|===|==|!=|!==|[<>])\s*(.*)$/';
+        preg_match($pattern, $rule, $matches);
+        return !empty($matches) ? $this->extractComparisonSign($matches) : false;
     }
 
+
+    /**
+     * 
+     */
+    private function extractComparisonSign(array $matches)
+    {
+        if (!empty($matches)) {
+            [$operator, $value] = $matches;
+
+            $this->currentOperator = str_replace($value, '', $operator);
+            return $value;
+        }
+
+        return false;
+    }
 
 
     /**
@@ -326,6 +374,7 @@ class Validator
     {
         return $rule === 'file' && array_key_exists($attribute, $_FILES);
     }
+
 
     /**
      * 
@@ -339,6 +388,155 @@ class Validator
         return !empty($_FILES[$attribute]['tmp_name']);
     }
 
+
+    /**
+     * 
+     */
+    private function executeRule($rule, $attr, $value, $parameters): void
+    {
+        $validator = $this->instantiateClass($rule);
+        if (!$validator->validate($value, $parameters)) {
+            $this->addErrorByRule($attr, $rule, [$rule => $parameters[0] ?? $value]);
+        }
+    }
+
+
+
+    /**
+     * 
+     */
+    public function instantiateClass(string $classRuleName, string $method = 'validate'): object
+    {
+        if (empty($classRuleName)) {
+            throw new AxmException(Axm::t('Axm', 'El nombre de la clase no puede esar vacio.'));
+        }
+
+        $class = 'Axm\\Validation\\Rules\\' .  ucfirst($classRuleName);
+        if (!isset($this->instances[$class])) {
+            if (!class_exists($class)) {
+                throw new AxmException(Axm::t('Axm', 'La clase de validacion "%s" no existe.', [
+                    $class,
+                ]));
+            }
+
+            $instance = $this->instances[$class] = new $class;
+
+            if (!method_exists($instance, $method)) {
+                throw new AxmException(Axm::t('Axm', 'El método "%s" no existe en la clase "%s".', [
+                    $method, $class,
+                ]));
+            }
+        }
+
+        return $this->instances[$class];
+    }
+
+
+    /**
+     * Esta función sirve para contar las ocurrencias de cada regla utilizando un caché de archivos
+     * @param string $rule
+     * @return int|false
+     */
+    public function countOccurrencesErrors(string $rule = null)
+    {
+        if (!empty($rule)) {
+            $cacheKey  = '__occurrencesErrors__' . $rule;
+            $cacheFile = STORAGE_PATH . '/framework/cahe/' . $cacheKey . '.txt';
+
+            if (file_exists($cacheFile)) {
+                $count = (int) file_get_contents($cacheFile);
+                $count++;
+            } else {
+                $count = 1;
+            }
+
+            file_put_contents($cacheFile, $count);
+
+            $this->countErrors = [
+                'rule'  => $rule,
+                'count' => $count,
+            ];
+
+            return $this->countErrors['count'];
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Esta función reinicia el archivo de caché y las ocurrencias de una regla
+     * @param string $rule
+     * @return bool
+     */
+    public function resetOccurrencesErrors(string $rule = null): bool
+    {
+        if (!empty($rule)) {
+            $cacheKey  = '__occurrencesErrors__' . $rule;
+            $cacheFile = STORAGE_PATH . '/framework/cahe/' . $cacheKey . '.txt';
+
+            if (file_exists($cacheFile)) {
+                unlink($cacheFile);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Esta función borra todos los archivos de caché de una dirección
+     * @param string $cacheDirectory
+     * @return bool
+     */
+    public function clearCacheDirectory(string $cacheDirectory): bool
+    {
+        if (is_dir($cacheDirectory)) {
+            $files = glob($cacheDirectory . '/*.txt');
+
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // *********************************************************************************************************
+
+
+
+    /**
+     * Class Rule Single
+     * si encuentra la rule class en todas las reglas de validación
+     * entonce  intanciará la clase y llamará al metodo validate 
+     * @param string $rule la regla de validación a comprobar.
+     * @param mixed $attribute el atributo a validar.
+     * @return bool devuelve true si la validación es exitosa, o false si no lo es.
+     */
+    public function isSingleRule(string $rule, $attribute): bool
+    {
+        #instanciar la rule class
+        $this->instantiateClass($rule);
+
+        if ($this->class->validate($attribute)) {
+            return true;
+        }
+
+        $this->addErrorByRule($attribute, $rule, ['field' => $attribute]);
+        return false;
+    }
+
+
+
+
+
     /**
      * 
      */
@@ -347,22 +545,6 @@ class Validator
         return strpos($rule, $this->not) !== false;
     }
 
-    /**
-     * 
-     */
-    private function hasEqualsRule($rule, $attribute): bool
-    {
-        return strpos($rule, $this->equals) !== false;
-    }
-
-    /**
-     * 
-     */
-    private function extractAttributeNameFromRules(string $rule, $operator): string
-    {
-        [$attribute] = explode($operator, $rule);
-        return $attribute;
-    }
 
     /**
      * 
@@ -381,70 +563,6 @@ class Validator
         return true;
     }
 
-    /**
-     * Compara si en las reglas de validacion existen algun operador de comparacion
-     * estos pueden ser: ('<','>','<=','>=','==','===','!=','!==')
-     */
-    private function hasCompareRule(string $rule): bool
-    {
-        foreach ($this->compare as $operator) {
-
-            return strpos($rule, $operator) !== false;
-        }
-    }
-
-    /**
-     * 
-     */
-    private function separateOperatorOfComparsionFromString($rules)
-    {
-        $operator = null;
-        foreach ($this->compare as $opr) {
-            if (strpos($rules, $opr) !== false) {
-                $operator = trim($opr);
-                break;
-            }
-        }
-
-        if (!$operator) {
-            throw new \InvalidArgumentException('No operator found in string');
-        }
-
-        $operands = explode($operator, $rules);
-        if (count($operands) != 2) {
-            throw new \InvalidArgumentException('Invalid string format');
-        }
-
-        $left  = trim($operands[0]);
-        $right = trim($operands[1]);
-
-        return [$left, $operator, $right];
-    }
-
-
-
-    /**
-     * Rule Class Comparation for fields
-     * los que tienen signo de comparation pero no son campos,
-     * realizará una comparacion entre los atributtes de los fields */
-    private function validateComparison(string $value, string $attribute): void
-    {
-        if (array_key_exists($value, $this->data)) {
-            $this->instantiateClass('compare');
-
-            $data = $this->separateOperatorOfComparsionFromString($value);
-            $right = $data[0];
-            $operator = $data[1];
-            $left = $this->data[$attribute];
-
-            $return = $this->class->validate($left, $operator, $right);
-
-            if ($return === false) {
-                $error = ['field' => $attribute, 'operator' => $this->compare, 'value' => $value];
-                $this->addErrorByRule($attribute, 'compare', $error);
-            }
-        }
-    }
 
 
     /**
@@ -483,32 +601,6 @@ class Validator
     }
 
 
-    public function instantiateClass(string $classRuleName, string $method = 'validate'): object
-    {
-        if (empty($classRuleName)) {
-            throw new AxmException(Axm::t("Axm", 'El nombre de la clase no puede esar vacio.'));
-        }
-
-        $class = "Axm\\Validation\\Rules\\" .  ucfirst($classRuleName);
-        if (!isset($this->instances[$class])) {
-            if (!class_exists($class)) {
-                throw new AxmException(Axm::t("Axm", 'La clase "{class}" no existe.', [
-                    "{class}" => $class,
-                ]));
-            }
-
-            $instance = $this->instances[$class] = new $class;
-
-            if (!method_exists($instance, $method)) {
-                throw new AxmException(Axm::t("Axm", 'El método "{method}" no existe en la clase "{class}".', [
-                    "{method}" => $method,
-                    "{class}" => $class,
-                ]));
-            }
-        }
-
-        return $this->instances[$class];
-    }
 
     /**
      * 
@@ -518,39 +610,25 @@ class Validator
         $messageParams['field'] = $field;
 
         if (!array_key_exists($rule, $this->errorMessage)) {
-            throw new \InvalidArgumentException(sprintf('Invalid validation rule "%s"', $rule));
+            throw new AxmException(Axm::t('Axm', 'Invalid validation rule "%s"', [
+                $rule
+            ]));
         }
 
-        $errorMessage = strtr($this->errorMessage[$rule], $messageParams);
-        $errorMessage = str_replace(['{', '}'], '', $errorMessage); // Reemplazar las llaves por un espacio en blanco
+        $errorMessage = $this->errorMessage[$rule];
+
+        // Buscar las variables en el mensaje de error y reemplazarlas
+        preg_match_all('/{{(.*?)}}/', $errorMessage, $matches);
+        foreach ($matches[1] as $variable) {
+            if (isset($messageParams[$variable])) {
+                $errorMessage = str_replace('{{' . $variable . '}}', $messageParams[$variable], $errorMessage);
+            }
+        }
+
         $this->errors[$field][] = [
-            'rule' => $rule,
+            'rule'    => $rule,
             'message' => $errorMessage
         ];
-    }
-
-
-    /**
-     * Esta funcion sirve para contar las ocurrencias de cada rules
-     * @param string $rule
-     * */
-    public function countOccurrencesErrors(string $rule = null): int
-    {
-        if (empty($rule)) {
-            return 0;
-        }
-
-        // Increment the occurrence count for the given rule
-        $this->occurrencesErrors[$rule] = ($this->occurrencesErrors[$rule] ?? 0) + 1;
-
-        // Update the countErrors property with the latest occurrence count
-        $this->countErrors = [
-            'rule' => $rule,
-            'count' => $this->occurrencesErrors[$rule],
-        ];
-
-        // Return the current occurrence count for the given rule
-        return $this->countErrors['count'];
     }
 
 
@@ -572,19 +650,6 @@ class Validator
         }
     }
 
-    /**
-     * Devuelve el error solicitado de la lista por default de los errores del framework si no se pasa parametros
-     * si se pasa parametos se pude modificar el message
-     * 
-     * @param string $rule */
-    public function errorMessage(string $rule, array $params = []): string
-    {
-        $message = $this->errorMessage[$rule];
-        foreach ($params as $key => $value) {
-            $message = str_replace("{{$key}}", $value, $message);
-        }
-        return $message;
-    }
 
     /**
      * 
@@ -593,7 +658,7 @@ class Validator
     {
         $message = $message ?: $this->errorMessage[$rule];
         $this->errors[$field][] = [
-            'rule' => $rule,
+            'rule'    => $rule,
             'message' => $message
         ];
         $this->rules[] = $rule;
@@ -634,6 +699,7 @@ class Validator
         return $this->validationRules;
     }
 
+
     /**
      * Modifica en la lista de mensajes errores un nuevo mensaje, con un message 
      * ej: $model->setError('email', 'required', 'este campo debe de ser un email');
@@ -648,7 +714,7 @@ class Validator
         }
 
         $addError = [
-            'rule' => $rule,
+            'rule'    => $rule,
             'message' => $newMessage
         ];
 
@@ -664,6 +730,7 @@ class Validator
     {
         return $this->errors[$fields] ?? false;
     }
+
 
     /**
      * 
@@ -683,14 +750,25 @@ class Validator
         return $firstError['message'];
     }
 
+
     /**
      * Devuelve todos los errores existentes en la lista
      * @return string
      */
     public function getErrors()
     {
-        return $this->errors ?? '';
+        $messages = [];
+        foreach ($this->errors as $value) {
+            foreach ($value as $item) {
+                if (isset($item['message'])) {
+                    $messages[] = $item['message'];
+                }
+            }
+        }
+
+        return $messages;
     }
+
 
     /**
      * Devuelve todos los errores existentes en la lista
@@ -748,13 +826,77 @@ class Validator
      * you need to process more than one array.  */
     public function reset(bool $resetValidationRules = true)
     {
-        $this->rules           = [];
-        $this->errors          = [];
+        $this->rules  = [];
+        $this->errors = [];
 
         if ($resetValidationRules) {
             $this->validationRules = [];
         }
 
         return $this;
+    }
+
+
+    /**
+     *********************************************************************************************************
+     *********************************************************************************************************
+     ************************************************************************************************************* 
+     */
+    public function validaten2(array $rulePack): bool
+    {
+        $this->data = $rulePack;
+        $this->reset(false);
+
+        foreach ($this->validationRules as $attr => $rules) {
+            if (!isset($this->data[$attr])) {
+                continue; // Saltar si el valor no existe en el array de datos.
+            }
+
+            $rules = array_filter(explode($this->separator, $rules));
+
+            foreach ($rules as $ruleItem) {
+                $parameters = $this->parseRuleParameters($ruleItem, $attr);
+                $value      = $this->data[$attr] ?? null;
+
+                $this->executeRule($ruleItem, $attr, $value, $parameters);
+            }
+        }
+
+        return empty($this->errors);
+    }
+
+    private function parseRuleParameters(string $ruleItem, string $attr): array
+    {
+        $parameters = [];
+
+        if (strpos($ruleItem, ':') !== false) {
+            [$rule, $parameter] = explode(':', $ruleItem, 2);
+            $parameters = explode(',', $parameter);
+
+            if ($rule === 'same' || $rule === 'unique') {
+                $parameters = $this->resolveRuleParameter($rule, $attr, $parameters);
+            }
+        } else {
+            $rule = $ruleItem;
+        }
+
+        return [
+            'rule'       => $rule,
+            'parameters' => $parameters,
+        ];
+    }
+
+    private function resolveRuleParameter(string $rule, string $attr, array $parameters): array
+    {
+        if (array_key_exists($parameters[0], $this->data)) {
+            $value      = $this->data[$attr];
+            $parameters = $this->data[$parameters[0]] ?? null;
+
+            if ($rule === 'same') {
+                $parameters = $value;
+            }
+        }
+
+        return $parameters;
     }
 }

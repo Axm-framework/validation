@@ -19,20 +19,48 @@ use DateTime;
 
 class Min
 {
-    public function validate($value, $arguments): bool
+    public function validate($value, array $parameters): bool
     {
 
-        if (is_file($value)) {
-            $value = filesize($value);
+        $isValid = false;
+
+        foreach ($parameters as $parameter) {
+
+            if (is_numeric($value)) {
+                $isValid = $this->validateNumeric($value, $parameter);
+            } elseif (is_string($value)) {
+                $isValid = $this->validateString($value, $parameter);
+            } elseif (is_file($value)) {
+                $isValid = $this->validateFileSize($value, $parameter);
+            }
+
+            if ($isValid) {
+                return true;
+            }
         }
 
-        if (is_string($value) || $value instanceof DateTime) {
-            $value = strlen((string) $value);
+        return false;
+    }
+
+    private function validateNumeric($value, $parameter): bool
+    {
+        return $value >= floatval($parameter);
+    }
+
+    private function validateString($value, $parameter): bool
+    {
+        return  mb_strlen($value) >= floatval($parameter);
+    }
+
+    private function validateFileSize($value, $parameter): bool
+    {
+        $size    = filesize($value);
+        $maxSize = $parameter;
+
+        if ($size >= floatval($maxSize)) {
+            return true;
         }
 
-        // dd(
-        //     $value, $arguments
-        // );
-        return $value <= $arguments;
+        return false;
     }
 }

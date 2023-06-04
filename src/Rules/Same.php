@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Axm\Validation\Rules;
 
-use function is_string;
-
 /*
-* Class Text
+* Class Alpha
 
  * (c) Juan Cristobal <juancristobalgd1@gmail.com>
  *
@@ -17,10 +15,15 @@ use function is_string;
  * @package Axm\Validation\Rules
  */
 
-class Text
+class Same
 {
-    public function validate($input): bool
+
+    public function validate($value, $parameters): bool
     {
-        return is_string($input);
+
+        $left  = $value;
+        $rigth = $parameters;
+
+        return $left == $rigth;
     }
 }

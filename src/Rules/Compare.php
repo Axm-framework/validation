@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Axm\Validation\Rules;
 
+use Axm\Validation\Validator;
+
 /*
 * Class Compare
 
@@ -15,11 +17,15 @@ namespace Axm\Validation\Rules;
  * @package Axm\Validation\Rules
  */
 
-class Compare
+class Compare extends Validator
 {
 
-    public function validate($left, $operator, $right): bool
+    public function validate($value, $parameters): bool
     {
+        $left     = floatval($value);
+        $right    = floatval($parameters['value']);
+        $operator = $parameters['operator'];
+
         if (!in_array($operator, ['>', '<', '>=', '<=', '==', '===', '!=', '!=='])) {
             throw new \InvalidArgumentException('Invalid operator');
         }

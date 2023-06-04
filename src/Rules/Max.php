@@ -24,13 +24,13 @@ class Max
     $isValid = false;
 
     foreach ($parameters as $parameter) {
-      // var_dump($value, $parameter);
+
       if (is_numeric($value)) {
         $isValid = $this->validateNumeric($value, $parameter);
       } elseif (is_string($value)) {
         $isValid = $this->validateString($value, $parameter);
       } elseif (is_file($value)) {
-        $isValid = $this->validateFile($value, $parameter);
+        $isValid = $this->validateFileSize($value, $parameter);
       }
 
       if ($isValid) {
@@ -43,22 +43,20 @@ class Max
 
   private function validateNumeric($value, $parameter): bool
   {
-   
-    return $value <= (int) $parameter;
+    return $value <= floatval($parameter);
   }
 
   private function validateString($value, $parameter): bool
   {
-    // dd( (int) $parameter >= mb_strlen($value));
-    return (int) $parameter >= mb_strlen($value);
+    return mb_strlen($value) <= floatval($parameter);
   }
 
-  private function validateFile($value, $parameter): bool
+  private function validateFileSize($value, $parameter): bool
   {
-    $size = filesize($value);
+    $size    = filesize($value);
     $maxSize = $parameter;
 
-    if ($size <= (int) $maxSize) {
+    if ($size <= floatval($maxSize)) {
       return true;
     }
 

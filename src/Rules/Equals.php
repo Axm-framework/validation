@@ -20,8 +20,8 @@ class Equals
     public function validate($value, $arguments): bool
     {
         $left  = $value;
-        $rigth =  $arguments;
-
+        $rigth = $arguments;
+        
         return $left == $rigth;
     }
 }

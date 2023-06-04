@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Axm\Validation\Rules;
 
-use function is_string;
+use function floor;
+use function is_numeric;
 
 /*
-* Class Text
+* Class NaturalNumber
 
  * (c) Juan Cristobal <juancristobalgd1@gmail.com>
  *
@@ -17,10 +18,11 @@ use function is_string;
  * @package Axm\Validation\Rules
  */
 
-class Text
+class NaturalNumber
 {
-    public function validate($input): bool
+
+    function validate($input): bool
     {
-        return is_string($input);
+        return is_numeric($input) && $input >= 0 && floor($input) == $input;
     }
 }

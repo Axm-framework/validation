@@ -7,7 +7,7 @@ namespace Axm\Validation\Rules;
 use function is_string;
 
 /*
-* Class Text
+* Class LeapYear
 
  * (c) Juan Cristobal <juancristobalgd1@gmail.com>
  *
@@ -17,10 +17,14 @@ use function is_string;
  * @package Axm\Validation\Rules
  */
 
-class Text
+class Link
 {
     public function validate($input): bool
     {
-        return is_string($input);
+        if (!is_string($input)) {
+            return false;
+        }
+
+        return filter_var($input, FILTER_VALIDATE_URL) !== false;
     }
 }
