@@ -18,7 +18,7 @@ use function is_numeric;
  * @package Axm\Validation\Rules
  */
 
-class NaturalNumber
+class NaturalNumber 
 {
 
     function validate($input): bool
