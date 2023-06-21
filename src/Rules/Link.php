@@ -7,7 +7,7 @@ namespace Axm\Validation\Rules;
 use function is_string;
 
 /*
-* Class LeapYear
+* Class Link
 
  * (c) Juan Cristobal <juancristobalgd1@gmail.com>
  *
