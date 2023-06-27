@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Axm\Validation\Rules;
 
 /*
-* Class IsTrue
-
+ * Class IsTrue
  * (c) Juan Cristobal <juancristobalgd1@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE file

@@ -15,7 +15,7 @@ use function is_object;
  * that was distributed with this source code.
  * @author  Juan Cristobal <juancristobalgd1@gmail.com>
  * @package Axm\Validation\Rules
- */
+*/
 
 class IsObject
 {
